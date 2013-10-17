@@ -19,6 +19,7 @@
 #include <QSettings>
 #include <QTimer>
 #include <QWebSettings>
+#include <QNetworkProxyFactory>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QAbstractNetworkCache>
@@ -50,6 +51,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     settings("Zeal", "Zeal")
 {
+    // Use the platform-specific proxy settings
+    QNetworkProxyFactory::setUseSystemConfiguration(true);
+
     // server for detecting already running instances
     localServer = new QLocalServer(this);
     connect(localServer, &QLocalServer::newConnection, [&]() {
@@ -185,6 +189,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 QString list = reply->readAll();
                 if(reply->error() != QNetworkReply::NoError) {
                     QMessageBox::warning(&settingsDialog, "No docsets found", "Failed retrieving list of docsets: " + reply->errorString());
+
                     settingsDialog.ui->downloadButton->show();
                 } else {
                     for(auto item : list.split("\n")) {
